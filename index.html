@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Teachable Machine</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1> Teachable Machine</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#use-cases">Use Cases</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <center>
+        <div id="webcam-container"></div>
+        <div id="label-container"></div>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+        <script type="text/javascript">
+            // More API functions here:
+            // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+            // the link to your model provided by Teachable Machine export panel
+            const URL = "https://teachablemachine.withgoogle.com/models/8WeWB0vaW/";
+
+            let model, webcam, labelContainer, maxPredictions;
+
+            // Load the image model and setup the webcam
+            async function init() {
+                const modelURL = URL + "model.json";
+                const metadataURL = URL + "metadata.json";
+
+                // load the model and metadata
+                // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+                // or files from your local hard drive
+                // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+                model = await tmImage.load(modelURL, metadataURL);
+                maxPredictions = model.getTotalClasses();
+
+                // Convenience function to setup a webcam
+                const flip = true; // whether to flip the webcam
+                webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+                await webcam.setup(); // request access to the webcam
+                await webcam.play();
+                window.requestAnimationFrame(loop);
+
+                // append elements to the DOM
+                document.getElementById("webcam-container").appendChild(webcam.canvas);
+                labelContainer = document.getElementById("label-container");
+                for (let i = 0; i < maxPredictions; i++) { // and class labels
+                    labelContainer.appendChild(document.createElement("div"));
+                }
+            }
+
+            async function loop() {
+                webcam.update(); // update the webcam frame
+                await predict();
+                window.requestAnimationFrame(loop);
+            }
+
+            // run the webcam image through the image model
+            async function predict() {
+                // predict can take in an image, video or canvas html element
+                const prediction = await model.predict(webcam.canvas);
+                for (let i = 0; i < maxPredictions; i++) {
+                    const classPrediction =
+                        prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                    labelContainer.childNodes[i].innerHTML = classPrediction;
+                }
+            }
+        </script>
+    </center>
+    <section id="hero">
+        <div class="hero-content">
+            <h2>Welcome toTeachable Machine</h2>
+            <p>Create, train, and deploy your machine learning models with ease.</p>
+            <a href="#start" class="button"><button style="font-size:xx-large;"  type="button" onclick="init()" >Start</button></a>
+        </div>
+    </section>
+
+    <section id="features">
+        <h2>Features</h2>
+        <div class="feature">
+            <h3>Feature Selection:</h3>
+            <p>Identifying and selecting the most relevant features that contribute to the predictive power of the model.</p>
+        </div>
+        <div class="feature">
+            <h3>Algorithm Choice:</h3>
+            <p>Selecting the appropriate machine learning algorithm (e.g., linear regression, decision trees, neural networks) based on the problem and data characteristics.</p>
+        </div>
+        <div class="feature">
+            <h3>Hyperparameter Tuning:</h3>
+            <p>Adjusting hyperparameters (e.g., learning rate, number of layers in a neural network) to optimize model performance.</p>
+        </div>
+    </section>
+
+    <section id="how-it-works">
+        <h2>How It Works</h2>
+        <ol>
+            <li><strong>Problem Definition:</strong> Clearly define the problem you want to solve. This involves understanding the business requirements and how machine learning can provide a solution.</li>
+            <li><strong>Data Collection:</strong> Gather the data needed to train your model. This could be structured data (like databases), unstructured data (like text, images, or videos), or a combination of both.</li>
+            <li><strong>Data Transformation:</strong> Convert data into a format suitable for machine learning. This might include normalization, standardization, and encoding categorical variables.</li>
+        </ol>
+    </section>
+
+    <section id="use-cases">
+        <h2>Use Cases</h2>
+        <div class="use-case">
+            <h3>Disease Diagnosis:</h3>
+            <p>Machine learning models analyze medical images and patient data to assist in diagnosing diseases like cancer, diabetic retinopathy, and heart conditions.</p>
+        </div>
+        <div class="use-case">
+            <h3>fraudulent</h3>
+            <p>Identifying fraudulent transactions by analyzing patterns and anomalies in transaction data.</p>
+        </div>
+        <div class="use-case">
+            <h3>Resume Screening:</h3>
+            <p>Automating the resume screening process by using machine learning to identify the most suitable candidates.</p>
+        </div>
+    </section>
+
+    <section id="testimonials">
+        <h2>Testimonials</h2>
+        <div class="testimonial">
+            <p>"Done Teachable Machine made machine learning accessible for our team."“Mazik Global’s machine learning-powered diagnostic tool has transformed our ability to detect diseases early. The accuracy of their model in identifying potential health issues from medical images has significantly improved our diagnostic process, leading to better patient outcomes and reduced costs.”</p>
+            <p>Healthcare</p>
+        </div>
+        <div class="testimonial">
+            <p>“Implementing Mazik Global’s fraud detection system has been a game-changer for us. The system’s ability to analyze transaction patterns and identify fraudulent activities in real-time has saved us millions of dollars and enhanced the security of our financial services.”</p>
+            <p>Finance</p>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2>Contact Us</h2>
+        <form action="submit_form.php" method="post">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" required></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Done Teachable Machine. All rights reserved.</p>
+    </footer>
+</body>
+</html>
